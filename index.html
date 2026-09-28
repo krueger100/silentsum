@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SilentSum — a calculator with a private vault</title>
+    <meta
+      name="description"
+      content="SilentSum is a working calculator for Android and iOS with an encrypted photo and video vault behind it. Everything is encrypted on your device. Distributed as Calculator."
+    />
+    <meta name="theme-color" content="#111827" />
+    <link rel="canonical" href="https://krueger100.github.io/silentsum/" />
+    <meta property="og:title" content="SilentSum — a calculator with a private vault" />
+    <meta
+      property="og:description"
+      content="A working calculator with an encrypted photo and video vault behind it. Encrypted on your device, before anything leaves it."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://krueger100.github.io/silentsum/" />
+    <style>
+      /*
+        The same tokens as the privacy policy page, so the two read as one product.
+        The dark values are the app's own DARK_PALETTE: #111827 behind the calculator,
+        #1f2937 for raised surfaces. The splash uses the same background, so the site,
+        the launch screen and the app agree.
+      */
+      :root {
+        --bg: #ffffff;
+        --surface: #f6f7f9;
+        --text: #17202a;
+        --muted: #5a6572;
+        --border: #dfe3e8;
+        --accent: #3d5afe;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #111827;
+          --surface: #1f2937;
+          --text: #f9fafb;
+          --muted: #9aa4b2;
+          --border: #374151;
+          --accent: #8da2ff;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          16px/1.65 -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+      }
+      main {
+        max-width: 46rem;
+        margin: 0 auto;
+        padding: 3rem 1rem 4rem;
+      }
+      h1 {
+        font-size: 2.1rem;
+        line-height: 1.2;
+        margin: 0 0 0.5rem;
+        letter-spacing: -0.01em;
+      }
+      h2 {
+        font-size: 1.2rem;
+        margin: 2.75rem 0 0.6rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid var(--border);
+      }
+      h3 {
+        font-size: 1rem;
+        margin: 1.5rem 0 0.4rem;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 1.08rem;
+        margin: 0 0 2rem;
+      }
+      a {
+        color: var(--accent);
+      }
+      code {
+        background: var(--surface);
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+      ul {
+        padding-left: 1.15rem;
+        margin: 0 0 1rem;
+      }
+      li {
+        margin-bottom: 0.4rem;
+      }
+
+      /* The mark: the four operator glyphs, the same ones on the app's launch screen. */
+      .mark {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.35rem;
+        width: 4.6rem;
+        margin: 0 0 1.75rem;
+      }
+      .mark span {
+        display: grid;
+        place-items: center;
+        aspect-ratio: 1;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 1.35rem;
+        line-height: 1;
+        color: var(--text);
+      }
+      .mark span:last-child {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #ffffff;
+      }
+
+      .callout {
+        background: var(--surface);
+        border-left: 3px solid var(--accent);
+        padding: 0.9rem 1rem;
+        margin: 1.4rem 0;
+        border-radius: 0 6px 6px 0;
+      }
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* The worked example of the unlock rule. Monospace so the digits line up. */
+      .keys {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.9rem 1rem;
+        margin: 1.2rem 0;
+        font:
+          0.9rem/1.9 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Consolas,
+          monospace;
+        overflow-x: auto;
+        white-space: pre;
+        color: var(--muted);
+      }
+      .keys b {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.2rem 0;
+        font-size: 0.94rem;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 0.65rem 0.7rem;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        background: var(--surface);
+        font-weight: 600;
+      }
+      td .price {
+        display: block;
+        color: var(--muted);
+        font-size: 0.9em;
+      }
+
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.2rem;
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      footer a {
+        margin-right: 1rem;
+        white-space: nowrap;
+      }
+      .links {
+        margin-bottom: 1rem;
+      }
+
+      @media (max-width: 34rem) {
+        main {
+          padding: 2rem 1rem 3rem;
+        }
+        h1 {
+          font-size: 1.7rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">
+        <span>+</span><span>&minus;</span><span>&times;</span><span>=</span>
+      </div>
+
+      <h1>SilentSum</h1>
+      <p class="sub">
+        A calculator that works like a calculator, with an encrypted vault for your photos and
+        videos behind it. Everything is encrypted on your phone, before anything leaves it.
+      </p>
+
+      <p>
+        On your home screen it is called <strong>Calculator</strong>, and that is what it is: a
+        working calculator, used by people who want somewhere private to keep a handful of pictures
+        without a padlock icon announcing it to anyone who picks up the phone.
+      </p>
+
+      <h2>It is a real calculator</h2>
+      <p>
+        Not a shell around a vault. It adds, subtracts, multiplies and divides, it keeps its result
+        when you rotate the phone, and if you never set up a vault it stays a calculator for good.
+        Nothing on the screen, in the app list or in the launcher suggests otherwise.
+      </p>
+
+      <h2>The vault opens with a sum</h2>
+      <p>
+        There is no hidden gesture and no secret long-press. You choose a PIN when you set the vault
+        up, and from then on you open it by making the calculator show that number. Type it, press
+        <code>=</code>, and the vault opens instead of a result.
+      </p>
+      <p>
+        You can also arrive at it in pieces. Any result that is a run of digits inside your PIN
+        counts towards it, so the number never has to be typed in the open:
+      </p>
+      <div class="keys">
+<b>6 + 6 =</b>        12     part of the PIN
+<b>1000 + 214 =</b>   1214   more of it
+<b>2900 + 7 =</b>     2907   the vault opens
+<b>7 × 7 =</b>        49     just 49</div>
+      <p>
+        A sum that has nothing to do with your PIN is only ever a sum. Wrong guesses count as failed
+        attempts and the wait between tries grows, so the keypad is not a free guessing machine.
+      </p>
+
+      <h2>How your files are protected</h2>
+      <ul>
+        <li>
+          Your key is derived from your PIN with <strong>Argon2id</strong>, which is deliberately
+          slow and memory-hungry, so guessing it offline is expensive rather than instant.
+        </li>
+        <li>
+          Photos and videos are encrypted with <strong>XChaCha20-Poly1305</strong>, which detects
+          tampering instead of quietly decrypting altered data.
+        </li>
+        <li>
+          Keys live in the device's own secure store &mdash; the Android Keystore or the iOS
+          Keychain &mdash; and are excluded from operating-system backups.
+        </li>
+        <li>
+          Vault screens are marked secure, so they are left out of screenshots, screen recordings
+          and the recent-apps preview.
+        </li>
+        <li>
+          Importing a picture into the vault moves it in. It stops being an ordinary file in your
+          gallery.
+        </li>
+      </ul>
+
+      <div class="callout">
+        <p>
+          <strong>What it cannot do.</strong> Encryption protects your files at rest and in transit.
+          It cannot protect you from someone who knows your PIN, from malware running on your phone
+          with elevated privileges, or from being compelled to unlock the app. No app can, and one
+          that says otherwise is selling you something.
+        </p>
+      </div>
+
+      <h2>Cloud backup, if you want it</h2>
+      <p>
+        Off by default. Turn it on and your vault is encrypted on the device first &mdash; the
+        servers hold ciphertext and nothing else. There is no password-reset path into your files,
+        because there is nothing on the server to reset them with. Keep your recovery passphrase.
+      </p>
+
+      <h2>Private messaging</h2>
+      <p>
+        SilentSum Pro adds end-to-end encrypted messages between SilentSum users, with photos and
+        video. Messages are encrypted with keys derived from your vault, so they are readable on
+        your device and nowhere else. There is no user directory and no search: you reach someone by
+        typing the exact address they gave you, or not at all.
+      </p>
+
+      <h2>What it costs</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>What you get</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Free</strong>
+              <span class="price">no account needed</span>
+            </td>
+            <td>
+              The calculator, and a vault holding up to 50 items. Works entirely offline, with no
+              sign-up and no e-mail address.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>SilentSum Cloud</strong>
+              <span class="price">&#8369;99 per 30 days</span>
+            </td>
+            <td>
+              An unlimited vault and encrypted cloud backup. Each payment buys 30 days and stops
+              there &mdash; nothing renews on its own, and there is no card left on file to charge.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>SilentSum Pro</strong>
+              <span class="price">&#8369;299 once</span>
+            </td>
+            <td>
+              Private messaging with other SilentSum users. Paid once, kept for good.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Availability</h2>
+      <p>
+        For Android, with iOS to follow. It is published under the name <strong>Calculator</strong>,
+        with the application ID <code>com.kruegerco.silentsum</code>.
+      </p>
+
+      <footer>
+        <p class="links">
+          <a href="https://krueger100.github.io/silentsum-privacy/">Privacy policy</a>
+          <a href="https://krueger100.github.io/silentsum-privacy/#delete">Delete your data</a>
+          <a href="mailto:kruegercolabs@gmail.com">kruegercolabs@gmail.com</a>
+        </p>
+        <p>SilentSum is made by kruegerCo-labs. Questions and bug reports are welcome at the address above.</p>
+      </footer>
+    </main>
+  </body>
+</html>
